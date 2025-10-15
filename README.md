@@ -118,6 +118,7 @@ func main() {
 	})
 
 	fmt.Println(si)
+
 	// [11, 13, 13]
 }
 ```
