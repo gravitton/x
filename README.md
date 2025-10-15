@@ -33,40 +33,39 @@ import (
 	"github.com/gravitton/x/container/heap"
 )
 
-
 type priorityItem struct {
-	  value    string
-	  priority int
-	  index    int
+	value    string
+	priority int
+	index    int
 }
 
 func (i *priorityItem) Compare(item *priorityItem) int {
-	  return cmp.Compare(i.priority, item.priority)
+	return cmp.Compare(i.priority, item.priority)
 }
 
 func (i *priorityItem) setIndex(index int) {
-	  i.index = index
+	i.index = index
 }
 
 func main() {
-	  pq := heap.NewComparable[priorityItem]()
-	  pq.SetIndex((*priorityItem).setIndex)
+	pq := heap.NewComparable[priorityItem]()
+	pq.SetIndex((*priorityItem).setIndex)
 
-	  pq.Push(&priorityItem{value: "banana", priority: 3})
-	  pq.Push(&priorityItem{value: "apple", priority: 2})
-	  pq.Push(&priorityItem{value: "pear", priority: 4})
+	pq.Push(&priorityItem{value: "banana", priority: 3})
+	pq.Push(&priorityItem{value: "apple", priority: 2})
+	pq.Push(&priorityItem{value: "pear", priority: 4})
 
-    orange := &priorityItem{value: "orange", priority: 1}
-    pq.Push(orange)
-    orange.priority = 5
-    pq.Fix(orange.index)
+	orange := &priorityItem{value: "orange", priority: 1}
+	pq.Push(orange)
+	orange.priority = 5
+	pq.Fix(orange.index)
 
-	  for pq.Len() > 0 {
-		    item := pq.Pop()
-		    fmt.Printf("%.2d:%s\n", item.priority, item.value)
-	  }
-	  
-	  // 02:apple 03:banana 04:pear 05:orange
+	for pq.Len() > 0 {
+		item := pq.Pop()
+		fmt.Printf("%.2d:%s\n", item.priority, item.value)
+	}
+
+	// 02:apple 03:banana 04:pear 05:orange
 }
 ```
 
@@ -84,17 +83,17 @@ import (
 )
 
 func main() {
-	  q := queue.New[int]()
-	  q.Push(2)
-	  q.Push(3)
-	  q.Push(1)
+	q := queue.New[int]()
+	q.Push(2)
+	q.Push(3)
+	q.Push(1)
 
-	  for q.Len() > 0 {
-		    val := q.Pop()
-		    fmt.Println(val)
-	  }
+	for q.Len() > 0 {
+		val := q.Pop()
+		fmt.Println(val)
+	}
 
-	  // 2 3 1
+	// 2 3 1
 }
 ```
 
@@ -113,13 +112,13 @@ import (
 )
 
 func main() {
-	  sf := slices.Map([]float64{1.1, 2.6, 3.4}, math.Round)
-	  si := slices.Map(sf, func(x float64) int {
-		    return 10 + int(x)
-	  })
+	sf := slices.Map([]float64{1.1, 2.6, 3.4}, math.Round)
+	si := slices.Map(sf, func(x float64) int {
+		return 10 + int(x)
+	})
 
-	  fmt.Println(si)
-	  // [11, 13, 13]
+	fmt.Println(si)
+	// [11, 13, 13]
 }
 ```
 ## Credits
