@@ -34,9 +34,12 @@ func ExampleHeap_priorityQueue() {
 
 	for pq.Len() > 0 {
 		item := pq.Pop()
-		fmt.Printf("%.2d:%s ", item.priority, item.value)
+		fmt.Printf("%.2d:%s\n", item.priority, item.value)
 	}
 
 	// Output:
-	// 02:apple 03:banana 04:pear 05:orange
+	// 02:apple
+	// 03:banana
+	// 04:pear
+	// 05:orange
 }
