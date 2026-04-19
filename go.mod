@@ -1,5 +1,5 @@
 module github.com/gravitton/x
 
-go 1.25
+go 1.26
 
-require github.com/gravitton/assert v0.5.0
+require github.com/gravitton/assert v1.0.0
