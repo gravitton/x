@@ -122,6 +122,34 @@ func main() {
 	// [11, 13, 13]
 }
 ```
+### Duration
+
+`time.Duration` wrapper that marshals to/from its string representation (e.g. `"200ms"`) via `encoding.TextMarshaler`/`encoding.TextUnmarshaler`. Useful for config files and JSON/TOML/YAML serialization.
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/gravitton/x/time"
+)
+
+type Config struct {
+	Timeout time.Duration `json:"timeout"`
+}
+
+func main() {
+	data := []byte(`{"timeout":"200ms"}`)
+
+	var cfg Config
+	json.Unmarshal(data, &cfg)
+
+	fmt.Println(cfg.Timeout) // 200ms
+}
+```
+
 ## Credits
 
 - [Tomáš Novotný](https://github.com/tomas-novotny)
