@@ -1,4 +1,12 @@
-# Extra
+<div align="center" width="100%">
+
+<a href="https://github.com/gravitton">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/gravitton/x/refs/heads/main/docs/images/logo-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/gravitton/x/refs/heads/main/docs/images/logo-light.svg">
+  <img alt="Gravitton x" src="https://raw.githubusercontent.com/gravitton/x/refs/heads/main/docs/images/logo-light.svg" width="300">
+</picture>
+</a>
 
 [![Latest Stable Version][ico-release]][link-release]
 [![Build Status][ico-workflow]][link-workflow]
@@ -6,154 +14,150 @@
 [![Go Dev Reference][ico-go-dev-reference]][link-go-dev-reference]
 [![Software License][ico-license]][link-licence]
 
-Collection of extra packages that implement some useful features that are missing in the standard library.
+Collection of extra packages that implement some useful features that are missing in the standard library
 
+<hr>
+
+</div>
+
+
+## Features
+
+- **Heap** – generic min-heap over `container/heap`, with ordered and comparable constructors.
+- **Queue** – generic FIFO queue backed by a slice.
+- **Slices** – `Map`, plus `Insert`, `Delete`, and `Contains` on sorted slices.
+- **Duration** – `time.Duration` that marshals as `"200ms"` in JSON, TOML, and YAML.
+- **Zero dependencies** – only the standard library at runtime.
 
 ## Installation
 
-```bash
+```shell
 go get github.com/gravitton/x
 ```
 
-
 ## Usage
 
-### Heap
+Each package mirrors its standard-library namesake and is meant to be imported next to it.
 
-Generic Heap backed by slice implementation using `container/heap` package from existing [proposal](https://github.com/golang/go/issues/47632).
+Heap over any ordered type:
 
 ```go
-package main
+import "github.com/gravitton/x/container/heap"
 
-import (
-	"cmp"
-	"fmt"
+h := heap.NewOrdered[int]()
+h.Push(3)
+h.Push(1)
+h.Push(2)
 
-	"github.com/gravitton/x/container/heap"
-)
+h.Peek() // 1
+h.Pop()  // 1
+h.Len()  // 2
+```
 
-type priorityItem struct {
-	value    string
+Heap over a custom type with a comparison function:
+
+```go
+type task struct {
+	name     string
+	priority int
+}
+
+h := heap.New(func(a, b task) int {
+	return cmp.Compare(a.priority, b.priority)
+})
+```
+
+Priority queue with in-place updates. `SetIndex` records each element's position so `Fix` and `Remove` can find it:
+
+```go
+type item struct {
+	name     string
 	priority int
 	index    int
 }
 
-func (i *priorityItem) Compare(item *priorityItem) int {
-	return cmp.Compare(i.priority, item.priority)
+func (i *item) Compare(other *item) int {
+	return cmp.Compare(i.priority, other.priority)
 }
 
-func (i *priorityItem) setIndex(index int) {
+pq := heap.NewComparable[item]()
+pq.SetIndex(func(i *item, index int) {
 	i.index = index
-}
+})
 
-func main() {
-	pq := heap.NewComparable[priorityItem]()
-	pq.SetIndex((*priorityItem).setIndex)
+orange := &item{name: "orange", priority: 1}
+pq.Push(orange)
+pq.Push(&item{name: "apple", priority: 2})
 
-	pq.Push(&priorityItem{value: "banana", priority: 3})
-	pq.Push(&priorityItem{value: "apple", priority: 2})
-	pq.Push(&priorityItem{value: "pear", priority: 4})
+orange.priority = 5
+pq.Fix(orange.index)
 
-	orange := &priorityItem{value: "orange", priority: 1}
-	pq.Push(orange)
-	orange.priority = 5
-	pq.Fix(orange.index)
-
-	for pq.Len() > 0 {
-		item := pq.Pop()
-		fmt.Printf("%.2d:%s\n", item.priority, item.value)
-	}
-
-	// 02:apple 03:banana 04:pear 05:orange
-}
+pq.Pop().name // "apple"
 ```
 
-### Queue
-
-Generic queue implementation. It is just a wrapper around `[]T` with some extra methods.
+Queue:
 
 ```go
-package main
+import "github.com/gravitton/x/container/queue"
 
-import (
-	"fmt"
+q := queue.New[string]()
+q.Push("a")
+q.Push("b")
 
-	"github.com/gravitton/x/container/queue"
-)
-
-func main() {
-	q := queue.New[int]()
-	q.Push(2)
-	q.Push(3)
-	q.Push(1)
-
-	for q.Len() > 0 {
-		val := q.Pop()
-		fmt.Println(val)
-	}
-
-	// 2 3 1
-}
+q.Peek()  // "a"
+q.Pop()   // "a"
+q.Len()   // 1
+q.Clear()
 ```
 
-### Map
-
-Generic Map method for slices.
+Slices:
 
 ```go
-package main
+import "github.com/gravitton/x/slices"
 
-import (
-	"fmt"
-	"math"
+slices.Map([]float64{1.1, 2.6}, math.Round) // []float64{1, 3}
+slices.Map([]int{1, 2}, strconv.Itoa)       // []string{"1", "2"}
 
-	"github.com/gravitton/x/slices"
-)
-
-func main() {
-	sf := slices.Map([]float64{1.1, 2.6, 3.4}, math.Round)
-	si := slices.Map(sf, func(x float64) int {
-		return 10 + int(x)
-	})
-
-	fmt.Println(si)
-
-	// [11, 13, 13]
-}
+s := []int{1, 3, 5}
+s = slices.Insert(s, 4, true) // []int{1, 3, 4, 5}, sorted; true skips duplicates
+s = slices.Delete(s, 3)       // []int{1, 4, 5}
+slices.Contains(s, 4)         // true, by binary search
 ```
-### Duration
 
-`time.Duration` wrapper that marshals to/from its string representation (e.g. `"200ms"`) via `encoding.TextMarshaler`/`encoding.TextUnmarshaler`. Useful for config files and JSON/TOML/YAML serialization.
+Duration in config files:
 
 ```go
-package main
-
-import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/gravitton/x/time"
-)
+import xtime "github.com/gravitton/x/time"
 
 type Config struct {
-	Timeout time.Duration `json:"timeout"`
+	Timeout xtime.Duration `json:"timeout"`
 }
 
-func main() {
-	data := []byte(`{"timeout":"200ms"}`)
+var cfg Config
+json.Unmarshal([]byte(`{"timeout":"200ms"}`), &cfg)
 
-	var cfg Config
-	json.Unmarshal(data, &cfg)
-
-	fmt.Println(cfg.Timeout) // 200ms
-}
+cfg.Timeout.String()                      // "200ms"
+cfg.Timeout.Equal(200 * time.Millisecond) // true
 ```
+
+Full reference: [pkg.go.dev][link-go-dev-reference].
+
+## Conventions
+
+**Heap:** `New` takes a `cmp.Compare`-style function returning negative, zero, or positive. `NewOrdered` uses `cmp.Compare` for `cmp.Ordered` types. `NewComparable` works with pointer elements whose type implements `Compare(*T) int`, the `cmp.Comparable` constraint from this module. `Pop` and `Peek` panic on an empty heap; check `Empty` first.
+
+**Queue:** `Pop` and `Peek` panic on an empty queue. `Slice` returns the backing slice, not a copy, so modifying it invalidates the queue. The same holds for `Heap.Slice`.
+
+**Sorted slices:** `Insert`, `Delete`, and `Contains` assume the slice is already sorted in ascending order and use binary search. Results are unspecified for unsorted input.
+
+**Map:** A nil input maps to a nil slice, so nil and empty stay distinguishable through a mapping.
+
+**Duration:** Marshalling goes through `encoding.TextMarshaler` and `encoding.TextUnmarshaler`, so it works with `encoding/json` and any TOML or YAML library that honours those interfaces. Parsing accepts anything `time.ParseDuration` does.
 
 ## Credits
 
 - [Tomáš Novotný](https://github.com/tomas-novotny)
 - [All Contributors][link-contributors]
-
 
 ## License
 
