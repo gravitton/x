@@ -6,7 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased](https://github.com/gravitton/x/compare/v1.2.0...main)
+## [Unreleased](https://github.com/gravitton/x/compare/v1.2.1...main)
+
+
+## [v1.2.1 (2026-09-17)](https://github.com/gravitton/x/compare/v1.2.0...v1.2.1)
 ### Fixed
 - `slices.Map` returns a nil slice for a nil input instead of an empty one, so nil and empty stay distinguishable through a mapping
 
