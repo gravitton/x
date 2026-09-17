@@ -20,4 +20,12 @@ func TestMap(t *testing.T) {
 	})
 
 	assert.Equal(t, s2, []int{12, 14, 16})
+
+	var nilSlice []int
+	assert.True(t, Map(nilSlice, func(i int) int {
+		return i
+	}) == nil)
+	assert.False(t, Map([]int{}, func(i int) int {
+		return i
+	}) == nil)
 }
