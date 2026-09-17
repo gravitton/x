@@ -4,9 +4,8 @@ import (
 	"container/heap"
 )
 
-// This file is copied from https://go.dev/play/p/350YF5j23xY
-// related to issue https://github.com/golang/go/issues/47632
-// After the issue is fixed, this file can be removed.
+// Based on the generic heap proposal https://github.com/golang/go/issues/47632
+// and its reference implementation https://go.dev/play/p/350YF5j23xY.
 
 // A Heap is a min-heap backed by a slice.
 type Heap[E any] struct {
@@ -95,7 +94,9 @@ type sliceHeap[E any] struct {
 	setIndex func(E, int)
 }
 
-func (s *sliceHeap[E]) Len() int { return len(s.s) }
+func (s *sliceHeap[E]) Len() int {
+	return len(s.s)
+}
 
 func (s *sliceHeap[E]) Swap(i, j int) {
 	s.s[i], s.s[j] = s.s[j], s.s[i]
@@ -109,14 +110,14 @@ func (s *sliceHeap[E]) Less(i, j int) bool {
 	return s.cmp(s.s[i], s.s[j]) < 0
 }
 
-func (s *sliceHeap[E]) Push(x interface{}) {
+func (s *sliceHeap[E]) Push(x any) {
 	s.s = append(s.s, x.(E))
 	if s.setIndex != nil {
 		s.setIndex(s.s[len(s.s)-1], len(s.s)-1)
 	}
 }
 
-func (s *sliceHeap[E]) Pop() interface{} {
+func (s *sliceHeap[E]) Pop() any {
 	e := s.s[len(s.s)-1]
 	if s.setIndex != nil {
 		s.setIndex(e, -1)

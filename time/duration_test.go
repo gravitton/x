@@ -27,7 +27,7 @@ func TestDuration_String(t *testing.T) {
 		{Duration(2*time.Hour + 30*time.Minute + 500*time.Millisecond), "2h30m0.5s"},
 	}
 	for _, c := range cases {
-		assert.Equal(t, c.want, c.d.String())
+		assert.Equal(t, c.d.String(), c.want)
 	}
 }
 
@@ -46,7 +46,7 @@ func TestDuration_MarshalText(t *testing.T) {
 	for _, c := range cases {
 		b, err := c.d.MarshalText()
 		assert.NoError(t, err)
-		assert.Equal(t, c.want, string(b))
+		assert.Equal(t, string(b), c.want)
 	}
 }
 

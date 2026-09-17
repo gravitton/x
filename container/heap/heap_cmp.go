@@ -6,14 +6,14 @@ import (
 	xcmp "github.com/gravitton/x/cmp"
 )
 
-// NewOrdered constructs a new Heap with a ordered elements
+// NewOrdered constructs a new Heap of ordered elements, using cmp.Compare.
 func NewOrdered[E cmp.Ordered]() *Heap[E] {
-	return &Heap[E]{sliceHeap[E]{cmp: cmp.Compare[E]}}
+	return New(cmp.Compare[E])
 }
 
-// NewComparable constructs a new Heap with a comparable elements
+// NewComparable constructs a new Heap of comparable elements, using their Compare method.
 func NewComparable[T any, E xcmp.Comparable[T]]() *Heap[E] {
-	return &Heap[E]{sliceHeap[E]{cmp: func(x E, y E) int {
+	return New(func(x E, y E) int {
 		return x.Compare(y)
-	}}}
+	})
 }

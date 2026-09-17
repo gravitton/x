@@ -45,5 +45,5 @@ jobs:
       - name: Upload coverage
         uses: coverallsapp/github-action@v2
         with:
-          path-to-lcov: coverage.out
-          parallel: false
+          file: coverage.out
+          format: golang
